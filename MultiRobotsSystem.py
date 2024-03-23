@@ -39,7 +39,7 @@ def calc_forcas_x(robpos, robpos2):
     Frep2 = rep_force(robpos, obs2)
     Frep2_x = np.copy(Frep2[:,0])
 
-    Frepr = rep_force(robpos, robpos2)/10000
+    Frepr = rep_force(robpos, robpos2)/15000
     Frepr_x = np.copy(Frepr[:,0])
 
     Ft = Fatt + Frep1 + Frep2 + Frepr
@@ -63,7 +63,7 @@ def calc_forcas_y(robpos, robpos2):
     Frep2 = rep_force(robpos, obs2)
     Frep2_y = np.copy(Frep2[:,1])
 
-    Frepr = rep_force(robpos, robpos2)/10000
+    Frepr = rep_force(robpos, robpos2)/15000
     Frepr_y = np.copy(Frepr[:,1])
 
     Ft = Fatt + Frep1 + Frep2 + Frepr
@@ -134,7 +134,7 @@ posix2 = 2
 posiy2 = 2
 
 # Cria a animação
-ani = FuncAnimation(fig, update, frames=200, interval=100, blit=True)
+ani = FuncAnimation(fig, update, frames=250, interval=50, blit=True)
 
 plt.plot(goal[0], goal[1], 'og', markersize=10)
 ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
