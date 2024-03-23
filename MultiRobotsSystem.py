@@ -39,7 +39,7 @@ def calc_forcas_x(robpos, robpos2):
     Frep2 = rep_force(robpos, obs2)
     Frep2_x = np.copy(Frep2[:,0])
 
-    Frepr = rep_force(robpos, robpos2)/10
+    Frepr = rep_force(robpos, robpos2)/10000
     Frepr_x = np.copy(Frepr[:,0])
 
     Ft = Fatt + Frep1 + Frep2 + Frepr
@@ -63,8 +63,8 @@ def calc_forcas_y(robpos, robpos2):
     Frep2 = rep_force(robpos, obs2)
     Frep2_y = np.copy(Frep2[:,1])
 
-    Frepr = rep_force(robpos, robpos2)/10
-    Frepr_x = np.copy(Frepr[:,1])
+    Frepr = rep_force(robpos, robpos2)/10000
+    Frepr_y = np.copy(Frepr[:,1])
 
     Ft = Fatt + Frep1 + Frep2 + Frepr
 
@@ -106,10 +106,10 @@ def update(frame):
     F2x = calc_forcas_x(robp2, rob)
     F2y = calc_forcas_y(robp2, rob)
 
-    posix += F1x*2
-    posiy += F1y*2
-    posix2 += F2x*2
-    posiy2 += F2y*2
+    posix += F1x
+    posiy += F1y
+    posix2 += F2x
+    posiy2 += F2y
 
     if last_patch is not None:
         last_patch.remove()  # Remove a bolinha anteriormente plotada
@@ -134,7 +134,7 @@ posix2 = 2
 posiy2 = 2
 
 # Cria a animação
-ani = FuncAnimation(fig, update, frames=100, interval=100, blit=True)
+ani = FuncAnimation(fig, update, frames=200, interval=100, blit=True)
 
 plt.plot(goal[0], goal[1], 'og', markersize=10)
 ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
