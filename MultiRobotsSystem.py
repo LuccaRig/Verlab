@@ -43,45 +43,41 @@ def create_robot_matrix(robot_positions_list):
     robots_positions_and_movement_matrix.append(robots_new_movement_list)
     return robots_positions_and_movement_matrix
 
-def calc_forcas_x(robpos, robpos2, robpos3):
-    Fatt = att_force(robpos, goal)
+def calc_forcas_x(selected_robot, robot_positions_list, robot_matrix):
+    Fatt = att_force(selected_robot, goal)
+    Frep1 = rep_force(selected_robot, obs1)
+    Frep2 = rep_force(selected_robot, obs2)
+    Ft = Fatt + Frep1 + Frep2
 
-    Frep1 = rep_force(robpos, obs1)
-
-    Frep2 = rep_force(robpos, obs2)
-
-    Frepr = rep_force(robpos, robpos2)/15000
-    Frepr2 = rep_force(robpos, robpos3)/15000
-
-    Ft = Fatt + Frep1 + Frep2 + Frepr + Frepr2
+    for i in range(len(robot_positions_list)):
+        Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
+        Ft += Frepr 
 
     Ft = Ft.astype(float)
     Ft_x = Ft[:,0]
 
-    fmax = .15
-    Fm = np.linalg.norm(Ft, axis=1)
-    Ft_x[Fm > fmax] = 0
+    # fmax = .15
+    # Fm = np.linalg.norm(Ft, axis=1)
+    # Ft_x[Fm > fmax] = 0
 
     return Ft_x[0]
 
-def calc_forcas_y(robpos, robpos2, robpos3):
-    Fatt = att_force(robpos, goal)
+def calc_forcas_y(selected_robot, robot_positions_list, robot_matrix):
+    Fatt = att_force(selected_robot, goal)
+    Frep1 = rep_force(selected_robot, obs1)
+    Frep2 = rep_force(selected_robot, obs2)
+    Ft = Fatt + Frep1 + Frep2
 
-    Frep1 = rep_force(robpos, obs1)
-
-    Frep2 = rep_force(robpos, obs2)
-
-    Frepr = rep_force(robpos, robpos2)/15000
-    Frepr2 = rep_force(robpos, robpos3)/15000
-
-    Ft = Fatt + Frep1 + Frep2 + Frepr + Frepr2
+    for i in range(len(robot_positions_list)):
+        Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
+        Ft += Frepr
 
     Ft = Ft.astype(float)
     Ft_y = Ft[:,1]
 
-    fmax = .15
-    Fm = np.linalg.norm(Ft, axis=1)
-    Ft_y[Fm > fmax] = 0
+    # fmax = .15
+    # Fm = np.linalg.norm(Ft, axis=1)
+    # Ft_y[Fm > fmax] = 0
 
     return Ft_y[0]    
 
@@ -97,8 +93,6 @@ def update_anim(robot_matrix):
 fig = plt.figure(figsize=(8,5), dpi=100)
 ax = fig.add_subplot(111, aspect='equal')
 
-XX, YY = np.meshgrid(np.arange(0, WORLDX+.4, .4), np.arange(0, WORLDY+.4, .4))
-XY = np.dstack([XX, YY]).reshape(-1, 2)
 
 
 def update(frame):
@@ -106,19 +100,14 @@ def update(frame):
 
     robot_matrix = create_robot_matrix(robot_positions_list)
 
-    F1x = calc_forcas_x(robot_matrix[1][0], robot_matrix[0][1], robot_matrix[0][2])
-    F1y = calc_forcas_y(robot_matrix[1][0], robot_matrix[0][1], robot_matrix[0][2])
-    F2x = calc_forcas_x(robot_matrix[1][1], robot_matrix[0][0], robot_matrix[0][2])
-    F2y = calc_forcas_y(robot_matrix[1][1], robot_matrix[0][0], robot_matrix[0][2])
-    F3x = calc_forcas_x(robot_matrix[1][2], robot_matrix[0][0], robot_matrix[0][1])
-    F3y = calc_forcas_y(robot_matrix[1][2], robot_matrix[0][0], robot_matrix[0][1])
-
-    robot_positions_list[0][0] += F1x
-    robot_positions_list[0][1] += F1y
-    robot_positions_list[1][0] += F2x
-    robot_positions_list[1][1] += F2y
-    robot_positions_list[2][0] += F3x
-    robot_positions_list[2][1] += F3y
+    for i in range(len(robot_positions_list)):
+        Fx = calc_forcas_x(robot_matrix[1][i], robot_positions_list, robot_matrix)
+        Fy = calc_forcas_y(robot_matrix[1][i], robot_positions_list, robot_matrix)
+        for j in range(len(robot_positions_list[i])):
+            if j%2 == 0:
+                robot_positions_list[i][j] += Fx
+            else:
+                robot_positions_list[i][j] += Fy
 
     update_anim(robot_matrix)
 
@@ -131,13 +120,14 @@ obs1 = np.array([3, 4, .5])
 obs2 = np.array([5, 2, .5])
 
 # Define a posição inicial dos robos
-robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5], [0.5, 0.5]]
+robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
+                         [0.5, 0.5]]
 last_patches = []
 for x in range(len(robot_positions_list)):
     last_patches.append(None)
 
 # Define a cor dos robos
-robot_colors_list = ['y', 'r', 'm', 'k', 'k', 'k']
+robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b']
 
 # Cria a animação
 ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
