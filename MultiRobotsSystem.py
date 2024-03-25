@@ -29,20 +29,31 @@ def rob_movement(posx, posy):
     robp = np.dstack([posx, posy]).reshape(-1, 2)
     return robp
 
-def calc_forcas_x(robpos, robpos2):
+# Cria os robos, suas posições e seus last_patches
+def quantity_robs(posrobs):
+    robs = []
+    robspos = []
+    for x in range(len(posrobs)):
+        newrob = rob_position(posrobs[x][0], posrobs[x][1])
+        newrobp = rob_movement(posrobs[x][0], posrobs[x][1])
+        robs.append(newrob)
+        robspos.append(newrobp)
+    robt = []
+    robt.append(robs)
+    robt.append(robspos)
+    return robt
+
+def calc_forcas_x(robpos, robpos2, robpos3):
     Fatt = att_force(robpos, goal)
-    Fatt_x = Fatt[:,0]
 
     Frep1 = rep_force(robpos, obs1)
-    Frep1_x = np.copy(Frep1[:,0])
 
     Frep2 = rep_force(robpos, obs2)
-    Frep2_x = np.copy(Frep2[:,0])
 
     Frepr = rep_force(robpos, robpos2)/15000
-    Frepr_x = np.copy(Frepr[:,0])
+    Frepr2 = rep_force(robpos, robpos3)/15000
 
-    Ft = Fatt + Frep1 + Frep2 + Frepr
+    Ft = Fatt + Frep1 + Frep2 + Frepr + Frepr2
 
     Ft = Ft.astype(float)
     Ft_x = Ft[:,0]
@@ -53,20 +64,17 @@ def calc_forcas_x(robpos, robpos2):
 
     return Ft_x[0]
 
-def calc_forcas_y(robpos, robpos2):
+def calc_forcas_y(robpos, robpos2, robpos3):
     Fatt = att_force(robpos, goal)
-    Fatt_y = Fatt[:,1]
 
     Frep1 = rep_force(robpos, obs1)
-    Frep1_y = np.copy(Frep1[:,1])
 
     Frep2 = rep_force(robpos, obs2)
-    Frep2_y = np.copy(Frep2[:,1])
 
     Frepr = rep_force(robpos, robpos2)/15000
-    Frepr_y = np.copy(Frepr[:,1])
+    Frepr2 = rep_force(robpos, robpos3)/15000
 
-    Ft = Fatt + Frep1 + Frep2 + Frepr
+    Ft = Fatt + Frep1 + Frep2 + Frepr + Frepr2
 
     Ft = Ft.astype(float)
     Ft_y = Ft[:,1]
@@ -76,6 +84,15 @@ def calc_forcas_y(robpos, robpos2):
     Ft_y[Fm > fmax] = 0
 
     return Ft_y[0]    
+
+# Atualiza as posições dos robos e as imprime
+def update_anim(robs):
+    global colors, last_patches
+    for x in range(len(robs[0])):
+        if last_patches[x] is not None:
+            last_patches[x].remove()
+        last_patches[x] = patches.Circle((robs[0][x][0], robs[0][x][1]), robs[0][x][2], color=colors[x])
+        ax.add_patch(last_patches[x])
 
 fig = plt.figure(figsize=(8,5), dpi=100)
 ax = fig.add_subplot(111, aspect='equal')
@@ -87,54 +104,40 @@ goal = np.array([8, 2])
 obs1 = np.array([3, 4, .5])
 obs2 = np.array([7, 5, .5])
 
-positions = []
-last_patch = None  # Variável para armazenar a última bolinha plotada
-positions2 = []
-last_patch2 = None
-
 def update(frame):
-    global posix, posiy, last_patch
-    global posix2, posiy2, last_patch2
+    global pos, robs
 
-    rob = rob_position(posix, posiy)
-    robp = rob_movement(posix, posiy)
-    rob2 = rob_position(posix2, posiy2)
-    robp2 = rob_movement(posix2, posiy2)
+    robs = quantity_robs(pos)
 
-    F1x = calc_forcas_x(robp, rob2)
-    F1y = calc_forcas_y(robp, rob2)
-    F2x = calc_forcas_x(robp2, rob)
-    F2y = calc_forcas_y(robp2, rob)
+    F1x = calc_forcas_x(robs[1][0], robs[0][1], robs[0][2])
+    F1y = calc_forcas_y(robs[1][0], robs[0][1], robs[0][2])
+    F2x = calc_forcas_x(robs[1][1], robs[0][0], robs[0][2])
+    F2y = calc_forcas_y(robs[1][1], robs[0][0], robs[0][2])
+    F3x = calc_forcas_x(robs[1][2], robs[0][0], robs[0][1])
+    F3y = calc_forcas_y(robs[1][2], robs[0][0], robs[0][1])
 
-    posix += F1x
-    posiy += F1y
-    posix2 += F2x
-    posiy2 += F2y
+    pos[0][0] += F1x
+    pos[0][1] += F1y
+    pos[1][0] += F2x
+    pos[1][1] += F2y
+    pos[2][0] += F3x
+    pos[2][1] += F3y
 
-    if last_patch is not None:
-        last_patch.remove()  # Remove a bolinha anteriormente plotada
+    update_anim(robs)
 
-    if last_patch2 is not None:
-        last_patch2.remove()
+    return ax
 
-    #ax.quiver(rob[0], rob[1], Ft_x, Ft_y, color='b')
-    last_patch = patches.Circle((rob[0], rob[1]), rob[2], color='y')
-    last_patch2 = patches.Circle((rob2[0], rob2[1]), rob2[2], color='r')
-    ax.add_patch(last_patch)  # Adiciona a nova bolinha à tela
-    ax.add_patch(last_patch2)
-    positions.append((rob[0], rob[1]))  # Adiciona a posição à lista de posições
-    positions2.append((rob2[0], rob2[1]))
+# Define a posição inicial dos robos
+pos = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5], [0.5, 0.5]]
+last_patches = []
+for x in range(len(pos)):
+    last_patches.append(None)
 
-    return ax,
-
-# Define a posição inicial
-posix = 1
-posiy = 6
-posix2 = 2
-posiy2 = 2
+# Define a cor dos robos
+colors = ['y', 'r', 'm', 'k', 'k', 'k']
 
 # Cria a animação
-ani = FuncAnimation(fig, update, frames=250, interval=50, blit=True)
+ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
 
 plt.plot(goal[0], goal[1], 'og', markersize=10)
 ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
