@@ -20,6 +20,11 @@ def rep_force(q, obs, R=3, krep=.1):
 
     return krep*rep
 
+def create_obs(posx, posy, r=.5):
+    obs = np.array([posx, posy, r])
+
+    return obs
+
 def rob_position(posx, posy):
     rob = np.array([posx, posy, .1])
     #ax.add_patch(patches.Circle((rob[0], rob[1]), rob[2], color='y'))
@@ -45,9 +50,9 @@ def create_robot_matrix(robot_positions_list):
 
 def calc_forcas_x(selected_robot, robot_positions_list, robot_matrix):
     Fatt = att_force(selected_robot, goal)
-    Frep1 = rep_force(selected_robot, obs1)
-    Frep2 = rep_force(selected_robot, obs2)
-    Ft = Fatt + Frep1 + Frep2
+    Ft = Fatt 
+    for obstacle in obs_list:
+        Ft +=  rep_force(selected_robot, obstacle)
 
     for i in range(len(robot_positions_list)):
         Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
@@ -64,9 +69,9 @@ def calc_forcas_x(selected_robot, robot_positions_list, robot_matrix):
 
 def calc_forcas_y(selected_robot, robot_positions_list, robot_matrix):
     Fatt = att_force(selected_robot, goal)
-    Frep1 = rep_force(selected_robot, obs1)
-    Frep2 = rep_force(selected_robot, obs2)
-    Ft = Fatt + Frep1 + Frep2
+    Ft = Fatt
+    for obstacle in obs_list:
+        Ft +=  rep_force(selected_robot, obstacle)
 
     for i in range(len(robot_positions_list)):
         Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
@@ -111,11 +116,17 @@ def update(frame):
 
 def main():
     # define as posicoes do goal e dos obstaculos
-    global goal, obs1, obs2, ax, robot_positions_list, robot_colors_list, last_patches
+    global goal, obs_list, ax, robot_positions_list, robot_colors_list, last_patches
     
     goal = np.array([8, 2])
-    obs1 = np.array([3, 4, .5])
-    obs2 = np.array([5, 2, .5])
+
+    obs_position_list = [[3, 4], [5, 2], [3, 1]]
+
+    obs_list = []
+
+    for obstacles in range (len(obs_position_list)):
+        obs_list.append(create_obs(obs_position_list[obstacles][0], obs_position_list[obstacles][1]))
+
 
     # Define a posição inicial dos robos
     robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
@@ -134,8 +145,8 @@ def main():
     ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
 
     plt.plot(goal[0], goal[1], 'og', markersize=10)
-    ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
-    ax.add_patch(patches.Circle((obs2[0], obs2[1]), obs2[2], color='k'))
+    for obstacle in obs_list:
+        ax.add_patch(patches.Circle((obstacle[0], obstacle[1]), obstacle[2], color='k'))
 
     ax.set_xlim(0, WORLDX)
     ax.set_ylim(0, WORLDY)
