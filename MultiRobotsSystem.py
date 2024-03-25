@@ -90,10 +90,6 @@ def update_anim(robot_matrix):
         last_patches[x] = patches.Circle((robot_matrix[0][x][0], robot_matrix[0][x][1]), robot_matrix[0][x][2], color=robot_colors_list[x])
         ax.add_patch(last_patches[x])
 
-fig = plt.figure(figsize=(8,5), dpi=100)
-ax = fig.add_subplot(111, aspect='equal')
-
-
 
 def update(frame):
     global robot_positions_list
@@ -113,31 +109,38 @@ def update(frame):
 
     return last_patches
 
+def main():
+    # define as posicoes do goal e dos obstaculos
+    global goal, obs1, obs2, ax, robot_positions_list, robot_colors_list, last_patches
+    
+    goal = np.array([8, 2])
+    obs1 = np.array([3, 4, .5])
+    obs2 = np.array([5, 2, .5])
 
-# define as posicoes do goal e dos obstaculos
-goal = np.array([8, 2])
-obs1 = np.array([3, 4, .5])
-obs2 = np.array([5, 2, .5])
+    # Define a posição inicial dos robos
+    robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
+                            [0.5, 0.5]]
+    last_patches = []
+    for x in range(len(robot_positions_list)):
+        last_patches.append(None)
 
-# Define a posição inicial dos robos
-robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
-                         [0.5, 0.5]]
-last_patches = []
-for x in range(len(robot_positions_list)):
-    last_patches.append(None)
+    # Define a cor dos robos
+    robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b']
 
-# Define a cor dos robos
-robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b']
+    fig = plt.figure(figsize=(8,5), dpi=100)
+    ax = fig.add_subplot(111, aspect='equal')
 
-# Cria a animação
-ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
+    # Cria a animação
+    ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
 
-plt.plot(goal[0], goal[1], 'og', markersize=10)
-ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
-ax.add_patch(patches.Circle((obs2[0], obs2[1]), obs2[2], color='k'))
+    plt.plot(goal[0], goal[1], 'og', markersize=10)
+    ax.add_patch(patches.Circle((obs1[0], obs1[1]), obs1[2], color='k'))
+    ax.add_patch(patches.Circle((obs2[0], obs2[1]), obs2[2], color='k'))
 
-ax.set_xlim(0, WORLDX)
-ax.set_ylim(0, WORLDY)
+    ax.set_xlim(0, WORLDX)
+    ax.set_ylim(0, WORLDY)
 
-print(len(robot_positions_list))
-plt.show()
+    print(len(robot_positions_list))
+    plt.show()
+
+main()
