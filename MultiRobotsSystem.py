@@ -29,19 +29,19 @@ def rob_movement(posx, posy):
     robp = np.dstack([posx, posy]).reshape(-1, 2)
     return robp
 
-# Cria os robos, suas posições e seus last_patches
-def quantity_robs(posrobs):
-    robs = []
-    robspos = []
-    for x in range(len(posrobs)):
-        newrob = rob_position(posrobs[x][0], posrobs[x][1])
-        newrobp = rob_movement(posrobs[x][0], posrobs[x][1])
-        robs.append(newrob)
-        robspos.append(newrobp)
-    robt = []
-    robt.append(robs)
-    robt.append(robspos)
-    return robt
+# create a robot matrix with 2 vectors (positions_list, movement_list)
+def create_robot_matrix(robot_positions_list):
+    robots_new_positions_list = []
+    robots_new_movement_list = []
+    for x in range(len(robot_positions_list)):
+        new_robot_position = rob_position(robot_positions_list[x][0], robot_positions_list[x][1])
+        new_robot_movement = rob_movement(robot_positions_list[x][0], robot_positions_list[x][1])
+        robots_new_positions_list.append(new_robot_position)
+        robots_new_movement_list.append(new_robot_movement)
+    robots_positions_and_movement_matrix = []
+    robots_positions_and_movement_matrix.append(robots_new_positions_list)
+    robots_positions_and_movement_matrix.append(robots_new_movement_list)
+    return robots_positions_and_movement_matrix
 
 def calc_forcas_x(robpos, robpos2, robpos3):
     Fatt = att_force(robpos, goal)
@@ -86,12 +86,12 @@ def calc_forcas_y(robpos, robpos2, robpos3):
     return Ft_y[0]    
 
 # Atualiza as posições dos robos e as imprime
-def update_anim(robs):
-    global colors, last_patches
-    for x in range(len(robs[0])):
+def update_anim(robot_matrix):
+    global robot_colors_list, last_patches
+    for x in range(len(robot_matrix[0])):
         if last_patches[x] is not None:
             last_patches[x].remove()
-        last_patches[x] = patches.Circle((robs[0][x][0], robs[0][x][1]), robs[0][x][2], color=colors[x])
+        last_patches[x] = patches.Circle((robot_matrix[0][x][0], robot_matrix[0][x][1]), robot_matrix[0][x][2], color=robot_colors_list[x])
         ax.add_patch(last_patches[x])
 
 fig = plt.figure(figsize=(8,5), dpi=100)
@@ -100,41 +100,44 @@ ax = fig.add_subplot(111, aspect='equal')
 XX, YY = np.meshgrid(np.arange(0, WORLDX+.4, .4), np.arange(0, WORLDY+.4, .4))
 XY = np.dstack([XX, YY]).reshape(-1, 2)
 
-goal = np.array([8, 2])
-obs1 = np.array([3, 4, .5])
-obs2 = np.array([7, 5, .5])
 
 def update(frame):
-    global pos, robs
+    global robot_positions_list
 
-    robs = quantity_robs(pos)
+    robot_matrix = create_robot_matrix(robot_positions_list)
 
-    F1x = calc_forcas_x(robs[1][0], robs[0][1], robs[0][2])
-    F1y = calc_forcas_y(robs[1][0], robs[0][1], robs[0][2])
-    F2x = calc_forcas_x(robs[1][1], robs[0][0], robs[0][2])
-    F2y = calc_forcas_y(robs[1][1], robs[0][0], robs[0][2])
-    F3x = calc_forcas_x(robs[1][2], robs[0][0], robs[0][1])
-    F3y = calc_forcas_y(robs[1][2], robs[0][0], robs[0][1])
+    F1x = calc_forcas_x(robot_matrix[1][0], robot_matrix[0][1], robot_matrix[0][2])
+    F1y = calc_forcas_y(robot_matrix[1][0], robot_matrix[0][1], robot_matrix[0][2])
+    F2x = calc_forcas_x(robot_matrix[1][1], robot_matrix[0][0], robot_matrix[0][2])
+    F2y = calc_forcas_y(robot_matrix[1][1], robot_matrix[0][0], robot_matrix[0][2])
+    F3x = calc_forcas_x(robot_matrix[1][2], robot_matrix[0][0], robot_matrix[0][1])
+    F3y = calc_forcas_y(robot_matrix[1][2], robot_matrix[0][0], robot_matrix[0][1])
 
-    pos[0][0] += F1x
-    pos[0][1] += F1y
-    pos[1][0] += F2x
-    pos[1][1] += F2y
-    pos[2][0] += F3x
-    pos[2][1] += F3y
+    robot_positions_list[0][0] += F1x
+    robot_positions_list[0][1] += F1y
+    robot_positions_list[1][0] += F2x
+    robot_positions_list[1][1] += F2y
+    robot_positions_list[2][0] += F3x
+    robot_positions_list[2][1] += F3y
 
-    update_anim(robs)
+    update_anim(robot_matrix)
 
-    return ax
+    return last_patches
+
+
+# define as posicoes do goal e dos obstaculos
+goal = np.array([8, 2])
+obs1 = np.array([3, 4, .5])
+obs2 = np.array([5, 2, .5])
 
 # Define a posição inicial dos robos
-pos = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5], [0.5, 0.5]]
+robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5], [0.5, 0.5]]
 last_patches = []
-for x in range(len(pos)):
+for x in range(len(robot_positions_list)):
     last_patches.append(None)
 
 # Define a cor dos robos
-colors = ['y', 'r', 'm', 'k', 'k', 'k']
+robot_colors_list = ['y', 'r', 'm', 'k', 'k', 'k']
 
 # Cria a animação
 ani = FuncAnimation(fig, update, frames=250, interval=30, blit=True)
@@ -146,4 +149,5 @@ ax.add_patch(patches.Circle((obs2[0], obs2[1]), obs2[2], color='k'))
 ax.set_xlim(0, WORLDX)
 ax.set_ylim(0, WORLDY)
 
+print(len(robot_positions_list))
 plt.show()
