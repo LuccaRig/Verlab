@@ -27,7 +27,6 @@ def create_obs(posx, posy, r=.5):
 
 def rob_position(posx, posy):
     rob = np.array([posx, posy, .1])
-    #ax.add_patch(patches.Circle((rob[0], rob[1]), rob[2], color='y'))
     return rob
 
 def rob_movement(posx, posy):
@@ -61,10 +60,6 @@ def calc_forcas_x(selected_robot, robot_positions_list, robot_matrix):
     Ft = Ft.astype(float)
     Ft_x = Ft[:,0]
 
-    # fmax = .15
-    # Fm = np.linalg.norm(Ft, axis=1)
-    # Ft_x[Fm > fmax] = 0
-
     return Ft_x[0]
 
 def calc_forcas_y(selected_robot, robot_positions_list, robot_matrix):
@@ -79,10 +74,6 @@ def calc_forcas_y(selected_robot, robot_positions_list, robot_matrix):
 
     Ft = Ft.astype(float)
     Ft_y = Ft[:,1]
-
-    # fmax = .15
-    # Fm = np.linalg.norm(Ft, axis=1)
-    # Ft_y[Fm > fmax] = 0
 
     return Ft_y[0]    
 
@@ -120,13 +111,13 @@ def main():
     
     goal = np.array([8, 2])
 
-    obs_position_list = [[3, 4], [5, 2], [3, 1]]
-
     obs_list = []
+
+    # Define a posicao inicial dos obstaculos
+    obs_position_list = [[3, 4], [5, 2], [3, 1]]
 
     for obstacles in range (len(obs_position_list)):
         obs_list.append(create_obs(obs_position_list[obstacles][0], obs_position_list[obstacles][1]))
-
 
     # Define a posição inicial dos robos
     robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
