@@ -114,16 +114,16 @@ def main():
     obs_list = []
 
     # Define a posicao inicial dos obstaculos
-    obs_position_list = [[3, 4], [5, 2], [3, 1]]
+    obs_position_list = [[3, 4], [5, 2]]
 
-    for obstacles in range (len(obs_position_list)):
-        obs_list.append(create_obs(obs_position_list[obstacles][0], obs_position_list[obstacles][1]))
+    for obstacles in obs_position_list:
+        obs_list.append(create_obs(obstacles[0], obstacles[1]))
 
     # Define a posição inicial dos robos
     robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
                             [0.5, 0.5]]
     last_patches = []
-    for x in range(len(robot_positions_list)):
+    for x in robot_positions_list:
         last_patches.append(None)
 
     # Define a cor dos robos
@@ -142,7 +142,6 @@ def main():
     ax.set_xlim(0, WORLDX)
     ax.set_ylim(0, WORLDY)
 
-    print(len(robot_positions_list))
     plt.show()
 
 main()
