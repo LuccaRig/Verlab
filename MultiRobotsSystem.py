@@ -37,9 +37,9 @@ def rob_movement(posx, posy):
 def create_robot_matrix(robot_positions_list):
     robots_new_positions_list = []
     robots_new_movement_list = []
-    for x in range(len(robot_positions_list)):
-        new_robot_position = rob_position(robot_positions_list[x][0], robot_positions_list[x][1])
-        new_robot_movement = rob_movement(robot_positions_list[x][0], robot_positions_list[x][1])
+    for robot_positions in robot_positions_list:
+        new_robot_position = rob_position(robot_positions[0], robot_positions[1])
+        new_robot_movement = rob_movement(robot_positions[0], robot_positions[1])
         robots_new_positions_list.append(new_robot_position)
         robots_new_movement_list.append(new_robot_movement)
     robots_positions_and_movement_matrix = []
@@ -54,7 +54,7 @@ def calc_forcas_x(selected_robot, robot_positions_list, robot_matrix):
         Ft +=  rep_force(selected_robot, obstacle)
 
     for i in range(len(robot_positions_list)):
-        Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
+        Frepr = rep_force(selected_robot, robot_matrix[0][i])/3500
         Ft += Frepr 
 
     Ft = Ft.astype(float)
@@ -69,7 +69,7 @@ def calc_forcas_y(selected_robot, robot_positions_list, robot_matrix):
         Ft +=  rep_force(selected_robot, obstacle)
 
     for i in range(len(robot_positions_list)):
-        Frepr = rep_force(selected_robot, robot_matrix[0][i])/4000
+        Frepr = rep_force(selected_robot, robot_matrix[0][i])/3500
         Ft += Frepr
 
     Ft = Ft.astype(float)
@@ -114,14 +114,14 @@ def main():
     obs_list = []
 
     # Define a posicao inicial dos obstaculos
-    obs_position_list = [[3, 4], [5, 2]]
+    obs_position_list = [[3, 4], [6, 5], [4.5, 2]]
 
     for obstacles in obs_position_list:
         obs_list.append(create_obs(obstacles[0], obstacles[1]))
 
     # Define a posição inicial dos robos
-    robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
-                            [0.5, 0.5]]
+    robot_positions_list = [[0.5, 1], [0.5, 2], [0.5, 3], [0.5, 4], [1, 1.5],
+                            [1, 2.5]]
     last_patches = []
     for x in robot_positions_list:
         last_patches.append(None)
