@@ -120,14 +120,14 @@ def main():
         obs_list.append(create_obs(obs_position_list[obstacles][0], obs_position_list[obstacles][1]))
 
     # Define a posição inicial dos robos
-    robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 1], [1.5, 1.5],
-                            [0.5, 0.5]]
+    robot_positions_list = [[2, 2], [2.5, 2], [3, 2], [1, 2], [1.5, 1.5],
+                            [0.5, 0.5], [1, 8]]
     last_patches = []
     for x in range(len(robot_positions_list)):
         last_patches.append(None)
 
     # Define a cor dos robos
-    robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b']
+    robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b', 'y']
 
     fig = plt.figure(figsize=(8,5), dpi=100)
     ax = fig.add_subplot(111, aspect='equal')
