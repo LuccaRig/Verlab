@@ -122,12 +122,13 @@ def main():
     # Define a posição inicial dos robos
     robot_positions_list = [[0.5, 1], [0.5, 2], [0.5, 3], [0.5, 4], [1, 1.5],
                             [1, 2.5]]
+    
     last_patches = []
     for x in robot_positions_list:
         last_patches.append(None)
 
     # Define a cor dos robos
-    robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b']
+    robot_colors_list = ['b', 'b', 'b', 'b', 'b', 'b', 'y']
 
     fig = plt.figure(figsize=(8,5), dpi=100)
     ax = fig.add_subplot(111, aspect='equal')
